@@ -1,0 +1,24 @@
+DODAVANJE SPRING SECURITY U APP
+
+prvo smo napravili prost home controller i on je odmah dostupan korisnicima na localhost/8080 ( mozemo vracati sta hocemo ali to nije bitno za spring security npr. neki text ili neku celu html stranicu)
+
+ovaj home je svima dostupan bez spring security.
+
+spring security se dodaje u projekat aplikaciju ubacivanjem u pom.xml dependecija spring-boot-starter-security.
+komanda je spring inicijalzer - edit starter , pa ubacimo to sto nam treba (najlaksi nacin u vs code), zatim se ponovo builduje APP
+
+odmah home nije dostupan , dobijamo formu za login ( sve default bez podesavanja) username je user , a password se generise kod svakog starta aplikacije. jednom kad se prijavimo dalje smo ulogovani i sve nam je dostupno ( kad bi npr. imali vise endpointa)
+mozemo promeniti username i password na sta mi hocemo unosom u application.properties ( spring.security.user.name i spring.security.user.password) i ubuduce je to pristup aplikaciji kod svakog starta iste.
+
+ To je default ponasanje spring security ( obavezna autentikacija na sve url , dodavanje login forma , dodavanje default usera - sa username i password, hendlovanje login forma , npr. error ako je pogresan login).
+
+ To default ponasanje mi dalje prilagodjavamo po potrebama nase aplikacije 
+
+ Ovde ide prvi commit. 
+ 
+
+
+
+
+
+
