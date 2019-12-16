@@ -1,11 +1,16 @@
 package zeljko.springsecurity.service;
 
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import zeljko.springsecurity.model.MyUserDetails;
+import zeljko.springsecurity.model.User;
+import zeljko.springsecurity.repository.UserRepository;
 
 /**
  * MyUserDetailsService
@@ -18,13 +23,31 @@ import zeljko.springsecurity.model.MyUserDetails;
 
 @Service
  public class MyUserDetailsService implements UserDetailsService {
+    
+    
+    @Autowired
+    UserRepository userRepository;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
        
-        // prvo hardcode tj. kad kucamo login prihvatice bilo koji username jer ce taj biti vracen a password je pass
-        return new MyUserDetails(username);
+        // prava jpa - mysql varijanta
+        // prvo za trazenog username vracamo naseg komplet usera iz baze - ili bacamo exception ako ga nema
+        Optional <User> user = userRepository.findByUsername(username);
 
+        // kad smo dobili naseg usera prosledjujemo ga u MyUserDetails koji pravi usera kojeg spring security ocekuje ( tipa UserDetails)
+        // posto je optional , ako ga nema bacamo gresku
+        user.orElseThrow(()->new UsernameNotFoundException("User not found"));
+
+        // ako ga ima moramo da ga pretvorimo u obicnog usera pa da napravimo novi myuserdetails sa parametrom user
+        
+        // User userakogaima = user.get();
+        // return new MyUserDetails(userakogaima);
+
+        // lepse napisano gornje (uzmi usera pa ga prosledi u parametar sa pozivom new myuserdetails prosledjen moj user , sto vraca
+        // usera tipa userdetails koji nama vraca , pa ga sa get izvlacimo i vracamo kroz return - tako se jedan objekat mapira u drugi)
+        return user.map(MyUserDetails::new).get();
+        
     }
 
     
