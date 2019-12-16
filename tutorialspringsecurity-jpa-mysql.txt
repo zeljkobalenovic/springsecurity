@@ -1,0 +1,29 @@
+starting point
+
+HomeController je isti - ista vezba
+SecurityConfiguration novi pravimo (iako ostaje ista autorizacija)
+u pom.xml treba samo web,security,jpa i mysql ( sa edit strters u vs code)
+ne trba schema.sql i data.sql
+i tutoriale brisemo osim ovog i sve ostalo sto netreba pravimo izpocetka
+
+Spring boot + Spring security + jpa + mysql
+
+HomeController je isti napravljen
+SecurityConfiguration.java pravim , tamo cu i objasnjavati
+
+znaci kad nema gotovog resenja kao za jdbc ili inmemory ili ldap autentikaciju onda moramo mi da je napravimo i to tako
+sto pravimo svoju implementaciju interfejsa UserDetailsService ( obavezno sa @Sevice anotacijom). Ona ima samo jednu metodu da 
+implementira i to : 
+UserDetails loadUserByUsername (username) koja kao ulazni parametar ima username , a vraca tip UserDetails koji je opet interfejsa koji
+moramo da implementiramo tj. UserDetailsService ide u bazu i na osnovu username nadje naseg usera( sa nasim podatcima tipa username, pass
+,role i sl.), a nasa implementacija UserDetails na osnovu usera iz nase baze pravi userdetails koji spring security ocekuje tj. odradi
+mapiranje nasih podataka o useru u onu semu koju spring security ocekuje znaci pravi se :
+
+1   MyUserDetailsService u folderu service (ime i folder nisu bitni) koji OBAVEZNO implementira UserDetailsService
+2   MyUserDetails u folderu model (ime i folder nisu bitni) koji OBAVEZNO implementira UserDetails
+
+priprema :
+
+za vezbu pravim User model ( u praksi se koristi postojeca tabela iz baze ili vise tabela - useri i role su obicno u vise tabela) koji cesve objediniti u jednoj tabeli users ( username , password , role - kao string gde su role dozvoljene role razdvojene zarezom) i pravim repository za rad sa entitetom tj. samo jedan metod finduserbyusername , kad dobijem mog user myuserdetails ga prebacuje u oblik userdetails koji spring security ocekuje
+
+
