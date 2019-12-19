@@ -1,0 +1,37 @@
+JWT ( JSON WEB TOKEN)
+
+koristi se posebno u web aplikacijama za autorizaciju. cesto i u mikroservisima za autorizaciju izmedju servisa.
+web programi se baziraju na http protokolu koji je stateless ( svaki request nema nikakve veze sa prethodnim tj. nista se nepamti). da nebi stalno morali da se autorizujemo, treba zapamtiti korisnika .
+
+Dva osnovna nacina su (sessionID + cookies) i jwt token
+
+kod prvog nacina korisnik se autorizuje , server ima session log u koji ga zapise (tipa sessionID, username ...) i posalje ga korisniku. korisnik sessionID cuva u kukiju i salje ga kod svakog zahteva. server ga primi nadje ga u session logu i onda zna sve o korisniku i netrazi vise autorizaciju. to je najpopularniji vid autorizacije. problem sa ovim tipom je sto u praksi web aplikacije nisu monolitni serveri, nego obicno ide load balanser koji zahteve baca na neki od mnogo istih servera (mnogo istih jer je za ozbiljne web stvari neophodno da ne postoji samo jedan server zbog moguceg otkaza , pa ih ima mnogo , a load balanser brine da su svi iskorisceni podjednako). sad je problem session log servera , koji nema zapis o korisniku ( sessionID) ako ga lb posalje na neki drugi server. ovo se resava zajednickim session log ( shared session log - npr REDIS). ali je problem opet sto je on onda jedini, pa ako otkaze opet se gube sve sesije. Zato je bolje resenje jwt token .
+
+Najkraca razlika je u tome da server kod prvog logovanja prakticno ono sto bi upisao u session log , upisuje u jwt token, to digitalno potpise da se nebi krivotvorilo i to salje korisniku, koji ga onda stalno salje u hederu kod sledecih requesta ( vise ne postoji nista na serveru tj. zapis je na klijentu - digitalno potpisan od servera)
+
+kod prvog povezivanja (korisnik-program ili mikroservis-mikroservis) pri logovanju server strana proverava kredencije klijenta i ako su ok salje mu jwt (generise ga). klijentska strana ga cuva i salje ga uz svaki request u autorization hederu, serverska strana presrece requeste , proverava taj heder i jwt u njemu i ako je ok izvrsava trazenu akciju i tako sve dok jwt token ne istekne(server) ili ga klijent obrise(obicno kod logouta).
+
+STRUKTURA JWT - JSON WEB TOKEN
+
+hhhhhhhhhhh.json(payload).sssssss   ( json objekt je u sredini), heder gore , a signature na kraju. tri dela su razdvojena . (tackom) - objekat json ( java script object native) moze biti bilo sta tj. bilo koji json
+
+heder je isto json (parovi imeparametra,vrednost) koji sadrzi tip tokena (npr. jwt) i algoritam potpisa (npr. sha256)
+payload je ustvari json zapis koji razmenjuju server i klijent ( npr. username:"pera" , id=23 , ....)
+ova dva dela nisu tajna tj. mogu se izvuci iz jwt i na nekom sajtu videti sta pise 
+signature deo nije tu da bi kriptovao prva dva nego sluzi serveru da proveri ispravnost jwt tokena koji klijent salje
+signature se generise na osnovu prva dva dela i neke tajne reci koju samo server zna. ako neko promeni makar jedno slovo u jwt tokenu server ce znati da potpis ne valja
+
+jwt NIJE za autentikaciju , ona se i dalje obavlja kao i bez njega npr. login . tek kad se dobije user on se ubacuje u jwt i to se salje klijentu . klijent pri svakom zahtevu salje jwt u hederu , a server ga onda validira i dopusta ili ne izvrsenje requesta ( to je flow). 
+
+starting point je kraj prethodne vezbe (prethodni commit jpa + mysql autentikacija)
+
+1 u pom.xml dodao sam dependeci za jwt
+2 prvo se dodaje jwt util service za rad sa jwt ( svi metodi vezani za jwt - create , validate , get username ...)     za prostije stvari nisu svi neophodni , ali za ovu vezbu svi su objasnjeni u JwtUtil.java servisu
+  vise necu da mi spring security daje formu za login nego hocu da korisnik posalje username i password , a ja da mu vratim jwt token , koji cu ja validirati kod narednih requesta 
+3 u home controler dodajem jos jedan authenticate endpoint na koji korisnik salje username i password , a ako je sve   ok dobija nazad jwt token (i u model napravim authentication request i response) , sve objasnjeno u /auth metoda     authenticate.
+  u security configuration dadajem taj endpoint na permitall , a sklanjam formlogin koji se vise nece koristiti tj. autentikacija je ubuduce moguca slanjem requesta na /auth sa parametrima username i password
+4 sad radi autentikacija tj. korisnik koji posalje request na gornji endpoint , sa korektnim username i password 
+  dobija nazad u responsu jwt token . za svaki sledeci request korisnik treba i taj token da posalje u authorization headeru i dokle god je jwt token validan moze da radi sa serverom u skladu sa svojom rolom tj. vise nemora da salje username i password. da bi to na serveru funkcionisalo mora se 
+5 napraviti jwt filter ( ime nije bitno ) cija je uloga objasnjena u fajlu , u security configuration dodat i taj filter + session stateles da ne pamti nista. sada se svaki request za sebe realizuje server nista ne pamti , a klijent je duzan da salje token kako treba  
+
+

@@ -41,11 +41,12 @@ import zeljko.springsecurity.repository.UserRepository;
 
         // ako ga ima moramo da ga pretvorimo u obicnog usera pa da napravimo novi myuserdetails sa parametrom user
         
-        // User userakogaima = user.get();
+        // User us = user.get();    
         // return new MyUserDetails(userakogaima);
 
         // lepse napisano gornje (uzmi usera pa ga prosledi u parametar sa pozivom new myuserdetails prosledjen moj user , sto vraca
         // usera tipa userdetails koji nama vraca , pa ga sa get izvlacimo i vracamo kroz return - tako se jedan objekat mapira u drugi)
+       
         return user.map(MyUserDetails::new).get();
         
     }

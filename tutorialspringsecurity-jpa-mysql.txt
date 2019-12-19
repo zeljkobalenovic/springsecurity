@@ -25,5 +25,9 @@ mapiranje nasih podataka o useru u onu semu koju spring security ocekuje znaci p
 priprema :
 
 za vezbu pravim User model ( u praksi se koristi postojeca tabela iz baze ili vise tabela - useri i role su obicno u vise tabela) koji cesve objediniti u jednoj tabeli users ( username , password , role - kao string gde su role dozvoljene role razdvojene zarezom) i pravim repository za rad sa entitetom tj. samo jedan metod finduserbyusername , kad dobijem mog user myuserdetails ga prebacuje u oblik userdetails koji spring security ocekuje
+pravi se i user repository, implementacija gornjeg je objasnjena u java fajlovima
 
+probano radi 
+
+sledece je kompletna autentikacija sa jwt (json web tokenima)
 
