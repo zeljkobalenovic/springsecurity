@@ -68,28 +68,25 @@ import zeljko.springsecurity.service.JwtUtil;
      //   final UserDetails userDetails = userDetailsService.loadUserByUsername("baki");
         
      try {
-            authenticationManager.authenticate(
-        new UsernamePasswordAuthenticationToken(authenticationRequest.getUsername(),authenticationRequest.getPassword())
-        );
-        } catch (final BadCredentialsException exception) {
-            throw new Exception("incorect username or password" , exception);  // korisnik nije autentikovan
-        }
-
-        // sada je korisnik autentikovan ( nije bacen exception )
-        // VAZNO posle autentikacije setuje se principal ( logovani user ) . objekt principal zavisi od tipa autentikacije
-        // kod koriscenja gornje ( autentikacija sa username i password) principal sadrzi samo username logovanog korisnika
-      //  String username = (String)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        
-        // kod nekih drugih implementacija autentikacije principal moze biti bogatiji , obicno onda sadrzi sve to jest principal bude tipa userdetails
-        // posto kod nas nemamo userdetails ( principal je samo string sa username ) , a treba nam za pravljenje jwt moramo opet da pozivamo bazu po userdetails . ovo bi se moglo izbeci drugacijim generate jwt tokenom , a mozda postoji i varijanta da se userdetails negde sacuva pri autentikaciji , ali to sad necemo 
-
-        final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
-        final String jwt = jwtUtil.generateToken(userDetails);
+            Authentication authentication = authenticationManager.authenticate(
+        new UsernamePasswordAuthenticationToken(authenticationRequest.getUsername(),authenticationRequest.getPassword()));
+            
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String jwt = jwtUtil.generateToken(userDetails);
         return ResponseEntity.ok(new AuthenticationResponse(jwt));
 
-        
-        
 
+        
+        } catch (final BadCredentialsException exception) {
 
+            // sa porukom 
+        //    String jwt = "Niste autentikovani pogresan username ili password";
+        //    return ResponseEntity.ok(new AuthenticationResponse(jwt));
+
+            // ili sa exception
+             throw new Exception("incorect username or password", exception); // korisnik nije autentikovan nema jwt tokena
+        }
+
+        
     }
 }
